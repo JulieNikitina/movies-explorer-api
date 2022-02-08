@@ -13,12 +13,12 @@ const {requestLogger, errorLogger} = require('./middlewares/logger');
 
 const app = express();
 
-// app.use(cors({
-//     origin: ['https://diploma.nomoredomains.rocks', 'http://diploma.nomoredomains.rocks'],
-//     allowedHeaders: ['Access-Control-Allow-Credentials', 'Access-Control-Allow-Origin', 'Content-Type'],
-//     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-//     credentials: true,
-// }));
+app.use(cors({
+    origin: ['https://diploma.nomoredomains.xyz', 'http://diploma.nomoredomains.xyz'],
+    allowedHeaders: ['Access-Control-Allow-Credentials', 'Access-Control-Allow-Origin', 'Content-Type'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    credentials: true,
+}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -58,14 +58,14 @@ app.use(auth);
 app.use('/users', require('./routes/user'));
 app.use('/movies', require('./routes/movie'));
 
-// app.post('/signout', (req, res) => {
-//     res.status(200).clearCookie('jwt', {
-//         domain: '.diploma.nomoredomains.rocks',
-//         httpOnly: false,
-//         sameSite: false,
-//         secure: false,
-//     }).send({ message: 'Выход' });
-// });
+app.post('/signout', (req, res) => {
+    res.status(200).clearCookie('jwt', {
+        domain: '.diploma.nomoredomains.xyz',
+        httpOnly: false,
+        sameSite: false,
+        secure: false,
+    }).send({ message: 'Выход' });
+});
 
 app.use((req, res, next) => {
   next(new NotFoundError('Пока запрашиваемой вами страницы нет, но не отчаивайтесь, возмоно она появится'));

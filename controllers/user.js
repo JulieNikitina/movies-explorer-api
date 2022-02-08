@@ -65,32 +65,20 @@ module.exports.login = (req, res, next) => {
   const week = hour * 24 * 7;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      // const token = jwt.sign(
-      //     {_id: user._id},
-      //     NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-      //     {expiresIn: '7d'},
-      // );
-      // res
-      //     .cookie('jwt', token, {
-      //         domain: '.diplomaproject.nomoredomains.rocks',
-      //         maxAge: week,
-      //         httpOnly: false,
-      //         sameSite: false,
-      //         secure: false,
-      //     })
-      //     .end();
       const token = jwt.sign(
-        { _id: user._id },
-        'dev-secret',
-        { expiresIn: '7d' },
+          {_id: user._id},
+          NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+          {expiresIn: '7d'},
       );
       res
-        .cookie('jwt', token, {
-          maxAge: 3600000,
-          httpOnly: true,
-          sameSite: true,
-        })
-        .end();
+          .cookie('jwt', token, {
+              domain: '.diploma.nomoredomains.xyz',
+              maxAge: week,
+              httpOnly: false,
+              sameSite: false,
+              secure: false,
+          })
+          .end();
     })
     .catch((error) => {
       next(error);
