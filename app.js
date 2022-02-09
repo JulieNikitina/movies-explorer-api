@@ -2,26 +2,24 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const {errors, celebrate, Joi} = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const cookieParser = require('cookie-parser');
-// eslint-disable-next-line import/no-unresolved
 const cors = require('cors');
-const {login, createUser} = require('./controllers/user');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-error');
-const {requestLogger, errorLogger} = require('./middlewares/logger');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 
 app.use(cors({
-    origin: ['https://diploma.nomoredomains.xyz', 'http://diploma.nomoredomains.xyz'],
-    allowedHeaders: ['Access-Control-Allow-Credentials', 'Access-Control-Allow-Origin', 'Content-Type'],
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    credentials: true,
+  origin: ['https://diploma.nomoredomains.xyz', 'http://diploma.nomoredomains.xyz'],
+  allowedHeaders: ['Access-Control-Allow-Credentials', 'Access-Control-Allow-Origin', 'Content-Type'],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  credentials: true,
 }));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
@@ -33,38 +31,18 @@ mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
 });
 
 app.use(requestLogger);
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().min(8).required(),
-    }),
-  }),
-  login,
-);
-app.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().min(8).required(),
-      name: Joi.string().min(2).max(30),
-    }),
-  }),
-  createUser,
-);
+app.use(require('./routes/authorization'));
 app.use(auth);
-app.use('/users', require('./routes/user'));
-app.use('/movies', require('./routes/movie'));
+app.use(require('./routes/user'));
+app.use(require('./routes/movie'));
 
 app.post('/signout', (req, res) => {
-    res.status(200).clearCookie('jwt', {
-        domain: '.diploma.nomoredomains.xyz',
-        httpOnly: false,
-        sameSite: false,
-        secure: false,
-    }).send({ message: 'Выход' });
+  res.status(200).clearCookie('jwt', {
+    domain: NODE_ENV === 'production' ? '.diploma.nomoredomains.xyz' : undefined,
+    httpOnly: false,
+    sameSite: false,
+    secure: false,
+  }).send({ message: 'Выход' });
 });
 
 app.use((req, res, next) => {
@@ -74,11 +52,10 @@ app.use((req, res, next) => {
 app.use(errorLogger);
 app.use(errors());
 
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+app.use((err, req, res, _) => {
   // Прописываем дефолты на случай если внезапно прилетело что-то неожиданное
   res.status(err.statusCode || 500);
-  res.send({message: err.message || 'Неизвестная ошибка'});
+  res.send({ message: err.message || 'Неизвестная ошибка' });
 });
 
 app.listen(3000, () => {

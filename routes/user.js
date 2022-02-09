@@ -2,10 +2,10 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const { getCurrentUserInfo, updateCurrentUserInfo } = require('../controllers/user');
 
-router.get('/me', getCurrentUserInfo);
+router.get('users/me', getCurrentUserInfo);
 
 router.patch(
-  '/me',
+  'users/me',
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().email().required().min(5)
