@@ -2,12 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { errors, celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-error');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+
+const { NODE_ENV } = process.env;
 
 const app = express();
 
@@ -22,7 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect('mongodb://localhost:27017/moviesdb', {
   useNewUrlParser: true,
 }, (err) => {
   if (err) {
@@ -32,6 +34,7 @@ mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
 
 app.use(requestLogger);
 app.use(require('./routes/authorization'));
+
 app.use(auth);
 app.use(require('./routes/user'));
 app.use(require('./routes/movie'));
